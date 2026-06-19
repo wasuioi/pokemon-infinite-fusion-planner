@@ -81,3 +81,33 @@ def test_suggest_no_duplicate_pairs():
     results = suggest_fusions(["Fire", "Water", "Electric"], top_n=10)
     pairs = [tuple(sorted([h, b])) for h, b, _, _ in results]
     assert len(pairs) == len(set(pairs))
+
+import subprocess
+
+def test_cli_runs_and_prints_coverage():
+    result = subprocess.run(
+        ["python3", "fusion.py", "Charizard/Blastoise"],
+        capture_output=True, text=True,
+        cwd=os.path.dirname(os.path.dirname(__file__))
+    )
+    assert result.returncode == 0
+    assert "Team Coverage" in result.stdout
+    assert "Missing" in result.stdout
+
+def test_cli_unfused_pokemon():
+    result = subprocess.run(
+        ["python3", "fusion.py", "Pikachu"],
+        capture_output=True, text=True,
+        cwd=os.path.dirname(os.path.dirname(__file__))
+    )
+    assert result.returncode == 0
+    assert "Electric" in result.stdout
+
+def test_cli_shows_suggestions_when_missing():
+    result = subprocess.run(
+        ["python3", "fusion.py", "Snorlax"],
+        capture_output=True, text=True,
+        cwd=os.path.dirname(os.path.dirname(__file__))
+    )
+    assert result.returncode == 0
+    assert "suggestions" in result.stdout.lower()

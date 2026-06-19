@@ -220,3 +220,49 @@ def suggest_fusions(missing, top_n=3):
         if len(results) >= top_n:
             break
     return results
+
+
+ALL_TYPES = sorted({t for types in POKEMON.values() for t in types})
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Pokémon Infinite Fusion — team type coverage checker"
+    )
+    parser.add_argument(
+        "team", nargs="+",
+        help="Fusions as Head/Body (e.g. Charizard/Blastoise) or solo name"
+    )
+    args = parser.parse_args()
+
+    team_types = []
+    for entry in args.team:
+        if "/" in entry:
+            head, body = entry.split("/", 1)
+            types = get_fusion_types(head, body)
+        else:
+            types = get_fusion_types(entry)
+        team_types.append(types)
+
+    covered = calc_coverage(team_types)
+    missing = [t for t in ALL_TYPES if t not in covered]
+
+    print("Team Coverage:")
+    for t in ALL_TYPES:
+        mark = "✓" if t in covered else "✗"
+        print(f"  {mark} {t}")
+
+    if missing:
+        print(f"\nMissing: {', '.join(missing)}")
+        print("\nTop suggestions to fill gaps:")
+        for head, body, types, gain in suggest_fusions(missing):
+            types_str = " + ".join(types)
+            gain_str = ", ".join(gain)
+            print(f"  {head}/{body}  →  {types_str}  (covers: {gain_str})")
+    else:
+        print("\nFull coverage! No gaps.")
+
+
+if __name__ == "__main__":
+    main()
