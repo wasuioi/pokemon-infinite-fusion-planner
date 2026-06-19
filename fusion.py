@@ -223,6 +223,25 @@ def suggest_fusions(missing, top_n=3):
 # Derived from Gen 1 data — Dark and Fairy are omitted (no Gen 1 Pokemon has these types)
 ALL_TYPES = sorted({t for types in POKEMON.values() for t in types})
 
+WEAK_TO = {}
+for _attacker, _defenders in TYPE_CHART.items():
+    for _defender in _defenders:
+        WEAK_TO.setdefault(_defender, []).append(_attacker)
+
+
+def calc_weaknesses(team_types):
+    if not team_types:
+        return set(), set()
+    sets = []
+    for types in team_types:
+        member_weak = set()
+        for t in types:
+            member_weak.update(WEAK_TO.get(t, []))
+        sets.append(member_weak)
+    partial = set.union(*sets)
+    universal = set.intersection(*sets)
+    return partial, universal
+
 
 def main():
     import argparse

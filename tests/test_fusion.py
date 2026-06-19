@@ -111,3 +111,40 @@ def test_cli_shows_suggestions_when_missing():
     )
     assert result.returncode == 0
     assert "suggestions" in result.stdout.lower()
+
+from fusion import calc_weaknesses, WEAK_TO
+
+def test_weak_to_fire_includes_water():
+    assert "Water" in WEAK_TO["Fire"]
+
+def test_weak_to_covers_all_types_in_pokemon():
+    from fusion import POKEMON
+    all_pokemon_types = {t for types in POKEMON.values() for t in types}
+    for t in all_pokemon_types:
+        assert t in WEAK_TO, f"{t} missing from WEAK_TO"
+
+def test_single_member_partial_equals_universal():
+    # One-member team: partial and universal are the same set
+    partial, universal = calc_weaknesses([["Fire"]])
+    assert partial == universal
+    assert "Water" in partial
+    assert "Rock" in partial
+    assert "Ground" in partial
+
+def test_two_members_partial_is_union():
+    # Fire weak to Water/Rock/Ground; Water weak to Electric/Grass
+    partial, universal = calc_weaknesses([["Fire"], ["Water"]])
+    assert "Water" in partial    # hits Fire
+    assert "Electric" in partial  # hits Water
+    assert "Grass" in partial     # hits Water
+
+def test_two_members_universal_is_intersection():
+    # Fire weak to Water/Rock/Ground; Electric weak to Ground
+    partial, universal = calc_weaknesses([["Fire"], ["Electric"]])
+    assert "Ground" in universal   # hits both Fire and Electric
+    assert "Water" not in universal  # hits Fire but not Electric
+
+def test_empty_team_returns_empty_sets():
+    partial, universal = calc_weaknesses([])
+    assert partial == set()
+    assert universal == set()
