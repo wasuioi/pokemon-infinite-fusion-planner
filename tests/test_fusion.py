@@ -56,3 +56,28 @@ def test_empty_team_covers_nothing():
 
 def test_normal_type_covers_nothing():
     assert calc_coverage([["Normal"]]) == set()
+
+from fusion import suggest_fusions
+
+def test_suggest_returns_at_most_top_n():
+    results = suggest_fusions(["Fire", "Water", "Grass"], top_n=3)
+    assert len(results) <= 3
+
+def test_suggest_each_result_is_tuple_of_four():
+    results = suggest_fusions(["Electric"])
+    assert len(results) >= 1
+    head, body, types, gain = results[0]
+    assert isinstance(head, str)
+    assert isinstance(body, str)
+    assert isinstance(types, list)
+    assert isinstance(gain, list)
+
+def test_suggest_covers_missing_type():
+    results = suggest_fusions(["Electric"])
+    all_gains = [g for _, _, _, g in results]
+    assert any("Electric" in g for g in all_gains)
+
+def test_suggest_no_duplicate_pairs():
+    results = suggest_fusions(["Fire", "Water", "Electric"], top_n=10)
+    pairs = [tuple(sorted([h, b])) for h, b, _, _ in results]
+    assert len(pairs) == len(set(pairs))

@@ -194,3 +194,29 @@ def calc_coverage(team_types):
         for t in types:
             covered.update(TYPE_CHART.get(t, []))
     return covered
+
+
+def suggest_fusions(missing, top_n=3):
+    missing_set = set(missing)
+    scores = []
+    names = list(POKEMON.keys())
+    for head in names:
+        for body in names:
+            types = get_fusion_types(head, body)
+            covered = set()
+            for t in types:
+                covered.update(TYPE_CHART.get(t, []))
+            gain = sorted(covered & missing_set)
+            if gain:
+                scores.append((len(gain), head, body, types, gain))
+    scores.sort(key=lambda x: -x[0])
+    seen = set()
+    results = []
+    for _, head, body, types, gain in scores:
+        key = tuple(sorted([head, body]))
+        if key not in seen:
+            seen.add(key)
+            results.append((head, body, types, gain))
+        if len(results) >= top_n:
+            break
+    return results
