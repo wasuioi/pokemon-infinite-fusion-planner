@@ -203,9 +203,7 @@ def suggest_fusions(missing, top_n=3):
     for head in names:
         for body in names:
             types = get_fusion_types(head, body)
-            covered = set()
-            for t in types:
-                covered.update(TYPE_CHART.get(t, []))
+            covered = calc_coverage([types])
             gain = sorted(covered & missing_set)
             if gain:
                 scores.append((len(gain), head, body, types, gain))
@@ -222,6 +220,7 @@ def suggest_fusions(missing, top_n=3):
     return results
 
 
+# Derived from Gen 1 data — Dark and Fairy are omitted (no Gen 1 Pokemon has these types)
 ALL_TYPES = sorted({t for types in POKEMON.values() for t in types})
 
 
