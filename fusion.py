@@ -252,6 +252,10 @@ def main():
         "team", nargs="+",
         help="Fusions as Head/Body (e.g. Charizard/Blastoise) or solo name"
     )
+    parser.add_argument(
+        "--defense", action="store_true",
+        help="Also show defensive weaknesses"
+    )
     args = parser.parse_args()
 
     team_types = []
@@ -280,6 +284,12 @@ def main():
             print(f"  {head}/{body}  →  {types_str}  (covers: {gain_str})")
     else:
         print("\nFull coverage! No gaps.")
+
+    if args.defense:
+        partial, universal = calc_weaknesses(team_types)
+        print("\nDefensive Weaknesses:")
+        print(f"  Partial (hits at least 1):  {', '.join(sorted(partial)) or 'None'}")
+        print(f"  Universal (hits everyone):  {', '.join(sorted(universal)) or 'None'}")
 
 
 if __name__ == "__main__":
