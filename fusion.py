@@ -186,3 +186,11 @@ def get_fusion_types(head, body=None):
             type2 = t
             break
     return [type1, type2] if type2 else [type1]
+
+
+def calc_coverage(team_types):
+    covered = set()
+    for types in team_types:
+        for t in types:
+            covered.update(TYPE_CHART.get(t, []))
+    return covered

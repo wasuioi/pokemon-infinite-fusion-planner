@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from fusion import get_fusion_types, POKEMON, TYPE_CHART
+from fusion import get_fusion_types, POKEMON, TYPE_CHART, calc_coverage
 
 def test_pokemon_dict_has_151_entries():
     assert len(POKEMON) == 151
@@ -35,3 +35,24 @@ def test_fusion_falls_back_to_body_type2_when_type1_matches():
 def test_fusion_single_type_body_same_as_head_gives_one_type():
     # Charmander (Fire) + Vulpix (Fire) → only Fire (body has no type2)
     assert get_fusion_types("Charmander", "Vulpix") == ["Fire"]
+
+def test_single_type_covers_correct_types():
+    result = calc_coverage([["Fire"]])
+    assert result == {"Grass", "Ice", "Bug", "Steel"}
+
+def test_two_types_union_coverage():
+    result = calc_coverage([["Fire"], ["Water"]])
+    assert "Grass" in result   # from Fire
+    assert "Ground" in result  # from Water
+    assert "Rock" in result    # from Water
+
+def test_dual_type_pokemon_covers_both():
+    result = calc_coverage([["Electric", "Flying"]])
+    assert "Water" in result    # Electric hits Water
+    assert "Fighting" in result # Flying hits Fighting
+
+def test_empty_team_covers_nothing():
+    assert calc_coverage([]) == set()
+
+def test_normal_type_covers_nothing():
+    assert calc_coverage([["Normal"]]) == set()
