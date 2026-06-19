@@ -151,7 +151,7 @@ def test_empty_team_returns_empty_sets():
 
 def test_cli_defense_flag_shows_weaknesses():
     result = subprocess.run(
-        ["python3", "fusion.py", "--defense", "Charizard/Blastoise"],
+        ["python", "fusion.py", "--defense", "Charizard/Blastoise"],
         capture_output=True, text=True,
         cwd=os.path.dirname(os.path.dirname(__file__))
     )
