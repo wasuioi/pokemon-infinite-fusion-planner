@@ -211,7 +211,7 @@ def suggest_fusions(missing, top_n=3):
     seen = set()
     results = []
     for _, head, body, types, gain in scores:
-        key = tuple(sorted([head, body]))
+        key = tuple(sorted(types))
         if key not in seen:
             seen.add(key)
             results.append((head, body, types, gain))
